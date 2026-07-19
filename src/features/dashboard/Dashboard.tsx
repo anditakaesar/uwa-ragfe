@@ -1,7 +1,7 @@
 import { useState } from "react"
-import { useAuth } from "../hooks/useAuth"
+import { useAuth } from "../../hooks/useAuth"
 
-function Dashboard() {
+const Dashboard = () => {
   const { token, logout } = useAuth()
   const [loggingOut, setLoggingOut] = useState(false)
 
@@ -24,6 +24,7 @@ function Dashboard() {
       </button>
     </>
   )
+
 }
 
 export default Dashboard

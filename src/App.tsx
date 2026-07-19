@@ -1,10 +1,11 @@
 import { format } from 'date-fns'
-import Dashboard from './components/Dashboard'
+import Dashboard from './features/dashboard/Dashboard'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
-import LoginPage from './components/Login'
+import LoginPage from './features/auth/Login'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { useAuth } from './hooks/useAuth'
+import Users from './features/dashboard/Users'
 
 const RootRedirect = () => {
   const { token, loading } = useAuth()
@@ -27,6 +28,7 @@ function App() {
 
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard/users" element={<Users />} />
           </Route>
         </Routes>
       </AuthProvider>
