@@ -2,6 +2,7 @@ import axios from 'axios'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
+import { Button } from '@carbon/react'
 
 export default function LoginPage() {
   const [username, setUsername] = useState<string>('')
@@ -11,7 +12,7 @@ export default function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => { // Changed type to standard React.FormEvent
+  const handleSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => { // Changed type to standard React.FormEvent
     e.preventDefault()
     setErrmessage('')
 
@@ -48,8 +49,6 @@ export default function LoginPage() {
         console.error('Standard error:', err.message)
       }
     }
-
-    // REMOVED: setUsername('') and setPassword('') from here
   }
 
   return (
@@ -74,9 +73,9 @@ export default function LoginPage() {
                 type="password"
                 value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}></input>
             </div>
-            <button type="submit" onClick={() => { }}>
+            <Button type="submit" onClick={() => { }}>
               Login
-            </button>
+            </Button>
           </form>
         </div>
         <div>

@@ -6,6 +6,7 @@ import LoginPage from './features/auth/Login'
 import { ProtectedRoute } from './components/ProtectedRoute'
 import { useAuth } from './hooks/useAuth'
 import Users from './features/dashboard/Users'
+import MainLayout from './layouts/MainLayout'
 
 const RootRedirect = () => {
   const { token, loading } = useAuth()
@@ -27,7 +28,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
 
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<MainLayout children={<Dashboard />} />} />
             <Route path="/dashboard/users" element={<Users />} />
           </Route>
         </Routes>
