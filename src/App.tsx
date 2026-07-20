@@ -8,6 +8,7 @@ import { useAuth } from './hooks/useAuth'
 import Users from './features/dashboard/Users'
 import MainLayout from './layouts/MainLayout'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { Content } from '@carbon/react'
 
 const RootRedirect = () => {
   const { isAuthenticated, loading } = useAuth()
@@ -38,7 +39,9 @@ function App() {
           </Routes>
         </AuthProvider>
       </QueryClientProvider>
-      <Footer />
+      <Content>
+        <Footer />
+      </Content>
     </BrowserRouter>
   )
 }

@@ -1,0 +1,14 @@
+@media (min-width: 42rem) {
+    .login-container {
+        width: 50%;
+        margin-left: 25%;
+    }
+}
+
+.login-content > * {
+    margin-bottom: 1rem; /* $spacing-05 */
+}
+
+.hidden {
+    display: none;
+}

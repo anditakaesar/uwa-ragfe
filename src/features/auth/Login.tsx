@@ -2,11 +2,12 @@ import axios from 'axios'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
-import { Button } from '@carbon/react'
+import { Button, Content, FlexGrid, Form, Heading, Row, TextInput, Tile } from '@carbon/react'
+import './Login.scss'
 
 export default function LoginPage() {
-  const [username, setUsername] = useState<string>('')
-  const [password, setPassword] = useState<string>('')
+  const [username, setUsername] = useState<string>('admin')
+  const [password, setPassword] = useState<string>('admin12345')
   const [errmessage, setErrmessage] = useState<string>('')
 
   const { login } = useAuth()
@@ -53,36 +54,43 @@ export default function LoginPage() {
   }
 
   return (
-    <>
-      <section id="center">
-        <div>
-          <h1>Login Here</h1>
-          <form onSubmit={handleSubmit} noValidate>
-            <div>
-              <label htmlFor="username">Username: </label>
-              <input id="username"
-                name="username"
-                type="text"
+    <Content className='login-container'>
+      <Form onSubmit={handleSubmit}>
+        <FlexGrid className='login-content' fullWidth>
+          <Row>
+            <Heading>Welcome</Heading>
+          </Row>
+          <Row>
+            <TextInput id='username'
+                labelText='username'
+                name='username'
+                type='text'
                 value={username}
                 onChange={
-                  (e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}></input>
-            </div>
-            <div>
-              <label htmlFor="password">Password: </label>
-              <input id="password"
-                name="password"
-                type="password"
-                value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}></input>
-            </div>
-            <Button type="submit" onClick={() => { }}>
+                  (e: React.ChangeEvent<HTMLInputElement>) => setUsername(e.target.value)}></TextInput>
+          </Row>
+          <Row>
+            <TextInput id='password'
+              labelText='password'
+              name='password'
+              type='password'
+              value={password} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}></TextInput>
+          </Row>
+          <Row>
+            <Button type='submit' onClick={() => {
+              setErrmessage('')
+            }}>
               Login
             </Button>
-          </form>
-        </div>
-        <div>
-          Err msg: {errmessage}
-        </div>
-      </section>
-    </>
+          </Row>
+          <Row className={ !errmessage ? 'hidden': ''}>
+            <Tile>
+              {errmessage}
+            </Tile>
+          </Row>
+        </FlexGrid>
+      </Form>
+
+    </Content>
   )
 }

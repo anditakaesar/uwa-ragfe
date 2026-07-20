@@ -1,13 +1,12 @@
-import { Logout, Notification, UserAvatar } from "@carbon/icons-react"
+import { Logout, Notification, UserProfile } from "@carbon/icons-react"
 import {
-  Button,
   Header,
   HeaderContainer,
   HeaderGlobalAction,
   HeaderGlobalBar,
   HeaderMenuButton,
-  HeaderMenuItem, HeaderName,
-  HeaderNavigation, HeaderSideNavItems, SideNav, SideNavItems, SkipToContent
+   HeaderName,
+  MenuButton, MenuItem, SkipToContent
 } from "@carbon/react"
 import { useAuth } from "../hooks/useAuth"
 
@@ -24,21 +23,8 @@ const MainHeader = () => {
             onClick={onClickSideNavExpand}
             isActive={isSideNavExpanded} />
           <HeaderName href="/" prefix="UWA">
-            Uwa Go Rag
+            Go Rag
           </HeaderName>
-          <HeaderNavigation>
-            <HeaderMenuItem href="/dashboard">Dashboard</HeaderMenuItem>
-          </HeaderNavigation>
-          <SideNav
-            aria-label="Side navigation"
-            expanded={isSideNavExpanded}
-            isPersistent={false}>
-            <SideNavItems>
-              <HeaderSideNavItems>
-                <HeaderMenuItem href="/dashboard">Dashboard</HeaderMenuItem>
-              </HeaderSideNavItems>
-            </SideNavItems>
-          </SideNav>
           <HeaderGlobalBar>
             <HeaderGlobalAction
               aria-label="Notifications"
@@ -46,15 +32,12 @@ const MainHeader = () => {
               className="action-icons">
               <Notification size={20} />
             </HeaderGlobalAction>
-            <HeaderGlobalAction
-              aria-label="User Avatar"
-              tooltipAlignment="center"
+            <MenuButton
+              label="Hello, User!" // change into username?
               className="action-icons">
-              <UserAvatar size={20} />
-            </HeaderGlobalAction>
-            <Button kind="danger" type="button" onClick={logout}>
-              <Logout /> {"Sign Out"}
-            </Button>
+                <MenuItem label="My Profile" renderIcon={() => <UserProfile />} />
+              <MenuItem label="Sign Out" kind="danger" onClick={logout} renderIcon={() => <Logout />} />
+            </MenuButton>
           </HeaderGlobalBar>
         </Header>
     )}
