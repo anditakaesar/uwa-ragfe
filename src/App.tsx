@@ -7,32 +7,37 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { useAuth } from './hooks/useAuth'
 import Users from './features/dashboard/Users'
 import MainLayout from './layouts/MainLayout'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 const RootRedirect = () => {
-  const { token, loading } = useAuth()
+  const { isAuthenticated, loading } = useAuth()
 
   if (loading) {
     return <div>Loading...</div>
   }
 
-  return token ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
 }
+
+const queryClient = new QueryClient()
 
 function App() {
   return (
     <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<RootRedirect />} />
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<RootRedirect />} />
 
-          <Route path="/login" element={<LoginPage />} />
+            <Route path="/login" element={<LoginPage />} />
 
-          <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<MainLayout children={<Dashboard />} />} />
-            <Route path="/dashboard/users" element={<Users />} />
-          </Route>
-        </Routes>
-      </AuthProvider>
+            <Route element={<ProtectedRoute />}>
+              <Route path="/dashboard" element={<MainLayout children={<Dashboard />} />} />
+              <Route path="/dashboard/users" element={<Users />} />
+            </Route>
+          </Routes>
+        </AuthProvider>
+      </QueryClientProvider>
       <Footer />
     </BrowserRouter>
   )

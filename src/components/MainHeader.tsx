@@ -10,22 +10,9 @@ import {
   HeaderNavigation, HeaderSideNavItems, SideNav, SideNavItems, SkipToContent
 } from "@carbon/react"
 import { useAuth } from "../hooks/useAuth"
-import { useState } from "react"
 
 const MainHeader = () => {
   const { logout } = useAuth()
-  const [loggingOut, setLoggingOut] = useState(false)
-
-  const handleLogout = async () => {
-    setLoggingOut(true)
-
-    try {
-      await logout()
-    } catch (err) {
-      console.error("Failed to cleanly logout:", err)
-      setLoggingOut(false)
-    }
-  }
 
   return (
     <HeaderContainer
@@ -65,8 +52,8 @@ const MainHeader = () => {
               className="action-icons">
               <UserAvatar size={20} />
             </HeaderGlobalAction>
-            <Button kind="danger" type="button" onClick={handleLogout} disabled={loggingOut}>
-              <Logout /> {loggingOut ? 'Signing Out...' : 'Sign Out'}
+            <Button kind="danger" type="button" onClick={logout}>
+              <Logout /> {"Sign Out"}
             </Button>
           </HeaderGlobalBar>
         </Header>

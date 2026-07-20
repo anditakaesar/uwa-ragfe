@@ -1,33 +1,37 @@
-// src/context/AuthContext.tsx
 import { useState, useEffect, type ReactNode } from 'react';
-import axios from 'axios';
 import { AuthContext } from './AuthContextSetup';
+import { axiosClient } from '../api/axiosClient';
+import { useQueryClient } from '@tanstack/react-query';
 
-axios.defaults.withCredentials = true;
-axios.defaults.baseURL = 'https://localhost:3000/api';
-
-// 3. Export your main component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [token, setToken] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [token, setToken] = useState<string | null>(null)
+  const [loading, setLoading] = useState<boolean>(true)
 
-  const login = (newToken: string) => setToken(newToken);
+  const login = (newToken: string) => {
+    localStorage.setItem('token', newToken)
+    setToken(newToken)
+  };
 
+  const queryClient = useQueryClient()
   const logout = async () => {
     try {
-      await axios.post('/auth/logout');
+      await axiosClient.post('/auth/logout')
     } catch (err) {
-      console.error("Logout failed", err);
+      console.error("Logout failed", err)
     } finally {
-      setToken(null);
+      localStorage.removeItem('token')
+      setToken(null)
+      queryClient.clear()
     }
   };
 
   useEffect(() => {
     const verifyUser = async () => {
       try {
-        const response = await axios.post('/auth/refresh');
-        setToken(response.data.data.token);
+        const response = await axiosClient.post('/auth/refresh');
+        const {token} = response.data.data
+        localStorage.setItem("token", token)
+        setToken(token);
       } catch {
         setToken(null);
       } finally {
@@ -38,7 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ token, loading, login, logout }}>
+    <AuthContext.Provider value={{ token, isAuthenticated: !!token, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

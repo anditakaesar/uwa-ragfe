@@ -24,6 +24,7 @@ export default function LoginPage() {
     try {
       const response = await axios({
         method: 'post',
+        baseURL: 'https://localhost:3000/api',
         url: `/auth/login`,
         headers: { 'Content-Type': 'application/json' },
         data: requestbody,
