@@ -1,13 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "./useAuth";
-import { profileService } from "../services/profileService";
+import { profileService, type UserProfile } from "../services/profileService";
 
 export function useProfile() {
   const { isAuthenticated } = useAuth()
 
-  return useQuery({
+  return useQuery<UserProfile>({
     queryKey: ['userProfile'],
     queryFn: profileService.getProfile,
     enabled: isAuthenticated,
+    staleTime: 1000 * 60 * 5, // Cache stays fresh for 5 minutes
+    retry: false,
   })
 }
