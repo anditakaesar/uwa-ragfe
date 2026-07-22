@@ -2,7 +2,7 @@ import axios from 'axios'
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../hooks/useAuth'
-import { Button, Content, FlexGrid, Form, Heading, Row, TextInput, Tile } from '@carbon/react'
+import { Button, Callout, Content, FlexGrid, Form, Heading, Row, TextInput, Tile, ToastNotification } from '@carbon/react'
 import './Login.scss'
 
 export default function LoginPage() {
@@ -84,9 +84,13 @@ export default function LoginPage() {
             </Button>
           </Row>
           <Row className={ !errmessage ? 'hidden': ''}>
-            <Tile>
-              {errmessage}
-            </Tile>
+            <Callout 
+              aria-label='error login notification'
+              kind='error'
+              role='status'
+              title='Error Login'
+              subtitle={errmessage}
+            />
           </Row>
         </FlexGrid>
       </Form>

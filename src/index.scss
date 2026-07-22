@@ -19,5 +19,17 @@
 }
 
 .hidden {
-    display: none;
+  display: none;
+}
+
+.app-theme-wrapper {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 100vh;
+  background-color: var(--cds-background);
+}
+
+.app-content {
+  flex: 1 1 auto;
 }

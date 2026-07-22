@@ -9,6 +9,8 @@ import MainLayout from './layouts/MainLayout'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Footer from './components/Footer'
 import './App.scss'
+import { Theme } from '@carbon/react'
+import ProfilePage from './features/auth/Profile'
 
 const RootRedirect = () => {
   const { isAuthenticated, loading } = useAuth()
@@ -24,7 +26,7 @@ const queryClient = new QueryClient()
 
 function App() {
   return (
-    <>
+    <Theme theme='g90' className='app-theme-wrapper'>
       <BrowserRouter>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
@@ -36,13 +38,14 @@ function App() {
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<MainLayout children={<Dashboard />} />} />
                 <Route path="/dashboard/users" element={<MainLayout children={<Users />} />} />
+                <Route path="/profile" element={<MainLayout children={<ProfilePage />} />} />
               </Route>
-              </Routes>
-              <Footer />
+            </Routes>
+            <Footer />
           </AuthProvider>
         </QueryClientProvider>
       </BrowserRouter>
-    </>
+    </Theme>
   )
 }
 

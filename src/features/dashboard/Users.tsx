@@ -14,7 +14,11 @@ import {
   TableToolbar,
   TableToolbarContent,
   TextInput,
-  IconButton
+  IconButton,
+  Section,
+  Heading,
+  Button,
+  Modal
 } from '@carbon/react'
 import { useUsers } from '../../hooks/useUsers'
 import { Search, TextClearFormat } from '@carbon/icons-react'
@@ -72,10 +76,21 @@ export const Users = () => {
   }
 
   return (
+    <>
     <div style={{ opacity: isFetching ? 0.6 : 1, transition: 'opacity 0.2s' }}>
+      <Section as="div">
+        <Heading>Users Management</Heading>
+        <p style={{ marginBottom: '2rem'}}>
+          List of registered users in the system
+        </p>
+        <Button>
+          New
+        </Button>
+      </Section>
+      <div style={{ marginBottom: '2rem' }} />
       <DataTable rows={rows} headers={headers}>
         {({ rows, headers, getTableProps }) => (
-          <TableContainer title="Users Management" description="List of registered users in the system">
+          <TableContainer>
             <TableToolbar>
               <TableToolbarContent>
                 <TextInput 
@@ -128,8 +143,9 @@ export const Users = () => {
         pageSizes={[10, 20, 30]}
         totalItems={totalItems}
         onChange={handlePaginationChange}
-      />
+        />
     </div>
+    </>
   )
 }
 
