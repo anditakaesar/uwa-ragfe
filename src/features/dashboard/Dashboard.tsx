@@ -1,8 +1,8 @@
-import Users from "./Users"
+import { Button } from "@carbon/react"
 
 const Dashboard = () => {
   return (
-    <Users></Users>
+    <Button href="/dashboard/users"></Button>
   )
 }
 

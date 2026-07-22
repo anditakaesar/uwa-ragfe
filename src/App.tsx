@@ -8,6 +8,7 @@ import Users from './features/dashboard/Users'
 import MainLayout from './layouts/MainLayout'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import Footer from './components/Footer'
+import './App.scss'
 
 const RootRedirect = () => {
   const { isAuthenticated, loading } = useAuth()
@@ -34,7 +35,7 @@ function App() {
 
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<MainLayout children={<Dashboard />} />} />
-                <Route path="/dashboard/users" element={<Users />} />
+                <Route path="/dashboard/users" element={<MainLayout children={<Users />} />} />
               </Route>
               </Routes>
               <Footer />

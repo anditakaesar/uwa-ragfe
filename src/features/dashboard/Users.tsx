@@ -8,14 +8,16 @@ import {
   TableHeader,
   TableBody,
   TableCell,
-  // TableToolbar,
-  // TableToolbarContent,
-  // TableToolbarSearch,
   DataTableSkeleton,
   Pagination,
-  InlineNotification
+  InlineNotification,
+  TableToolbar,
+  TableToolbarContent,
+  TextInput,
+  IconButton
 } from '@carbon/react'
 import { useUsers } from '../../hooks/useUsers'
+import { Search, TextClearFormat } from '@carbon/icons-react'
 
 const headers = [
   { key: 'id', header: 'ID' },
@@ -27,7 +29,8 @@ const headers = [
 export const Users = () => {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
-  const [username] = useState('')
+  const [username, setUsername] = useState('')
+  const [filterusername, setFilterusername] = useState('')
 
   const { data, isLoading, isError, error, isFetching } = useUsers({
     page,
@@ -40,9 +43,9 @@ export const Users = () => {
     setPageSize(newPageSize)
   }
 
-  // const handleUsernameChange = (e, value) => {
-  //   setUsername(value)
-  // }
+  const handleSearch = (value: string) => {
+    setUsername(value)
+  }
 
   const rows =
     data?.data.map((user) => ({
@@ -71,23 +74,35 @@ export const Users = () => {
   return (
     <div style={{ opacity: isFetching ? 0.6 : 1, transition: 'opacity 0.2s' }}>
       <DataTable rows={rows} headers={headers}>
-        {({ rows, headers, getHeaderProps, getRowProps, getTableProps }) => (
+        {({ rows, headers, getTableProps }) => (
           <TableContainer title="Users Management" description="List of registered users in the system">
-            {/*<TableToolbar>
+            <TableToolbar>
               <TableToolbarContent>
-                <TableToolbarSearch
-                  persistent
-                  placeholder="Filter by username..."
-                  value={username}
-                  onChange={handleUsernameChange}
+                <TextInput 
+                id='username-like-input' 
+                labelText='usernamelike' hideLabel 
+                placeholder='filter by username'
+                value={filterusername}
+                onChange={(e) => setFilterusername(e.target.value)}
                 />
+                <IconButton label='search' onClick={() => {
+                  handleSearch(filterusername)
+                }}>
+                  <Search />
+                </IconButton>
+                <IconButton label='clear' onClick={() => {
+                  setFilterusername('')
+                  handleSearch('')
+                }}>
+                  <TextClearFormat />
+                </IconButton>
               </TableToolbarContent>
-            </TableToolbar>*/}
+            </TableToolbar>
             <Table {...getTableProps()}>
               <TableHead>
                 <TableRow>
                   {headers.map((header) => (
-                    <TableHeader {...getHeaderProps({ header })}>
+                    <TableHeader key={header.key}>
                       {header.header}
                     </TableHeader>
                   ))}
@@ -95,7 +110,7 @@ export const Users = () => {
               </TableHead>
               <TableBody>
                 {rows.map((row) => (
-                  <TableRow {...getRowProps({ row })}>
+                  <TableRow key={row.id}>
                     {row.cells.map((cell) => (
                       <TableCell key={cell.id}>{cell.value}</TableCell>
                     ))}
@@ -110,7 +125,7 @@ export const Users = () => {
       <Pagination
         page={page}
         pageSize={pageSize}
-        pageSizes={[1, 2, 3]}
+        pageSizes={[10, 20, 30]}
         totalItems={totalItems}
         onChange={handlePaginationChange}
       />
