@@ -18,10 +18,10 @@ import {
   Section,
   Heading,
   Button,
-  Modal
+  Modal,
 } from '@carbon/react'
 import { useUsers } from '../../hooks/useUsers'
-import { Search, TextClearFormat } from '@carbon/icons-react'
+import { Add, Search, TextClearFormat } from '@carbon/icons-react'
 
 const headers = [
   { key: 'id', header: 'ID' },
@@ -29,6 +29,25 @@ const headers = [
   { key: 'roleID', header: 'Role ID' },
   { key: 'createdAt', header: 'Created At' }
 ]
+
+const NewUserModal = () => {
+  const [modalOpen, setModalOpen] = useState(false)
+
+  return (
+    <>
+    <Button type='button' onClick={() => setModalOpen(true)} renderIcon={Add}>
+          New
+    </Button>
+    <Modal open={modalOpen} onRequestClose={() => setModalOpen(false)} primaryButtonText="Add" secondaryButtonText="Cancel">
+      <p style={{marginBottom: '1rem'}}>
+        Create new user here
+      </p>
+      <TextInput data-modal-primary-focus id='username' type='text' labelText='username' placeholder='username here...' style={{marginBottom: '1rem'}} />
+      <TextInput id='password' type='password' labelText='password' placeholder='password here...' style={{marginBottom: '1rem'}} />
+    </Modal>
+    </>
+  )
+}
 
 export const Users = () => {
   const [page, setPage] = useState(1)
@@ -83,9 +102,7 @@ export const Users = () => {
         <p style={{ marginBottom: '2rem'}}>
           List of registered users in the system
         </p>
-        <Button>
-          New
-        </Button>
+        <NewUserModal />
       </Section>
       <div style={{ marginBottom: '2rem' }} />
       <DataTable rows={rows} headers={headers}>
