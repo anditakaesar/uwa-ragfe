@@ -26,7 +26,7 @@ import { Add, Search, TextClearFormat } from '@carbon/icons-react'
 const headers = [
   { key: 'id', header: 'ID' },
   { key: 'username', header: 'Username' },
-  { key: 'roleID', header: 'Role ID' },
+  { key: 'roleName', header: 'Role' },
   { key: 'createdAt', header: 'Created At' }
 ]
 
@@ -74,7 +74,7 @@ export const Users = () => {
     data?.data.map((user) => ({
       id: String(user.id),
       username: user.username,
-      roleID: user.roleID,
+      roleName: user.roleName,
       createdAt: new Date(user.createdAt).toLocaleString()
     })) || []
 

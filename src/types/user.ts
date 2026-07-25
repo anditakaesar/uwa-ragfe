@@ -5,6 +5,7 @@ export interface User {
   username: string
   roleID: number
   createdAt: string
+  roleName: string
 }
 
 export interface GetUsersRequest {
