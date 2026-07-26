@@ -19,9 +19,10 @@ import {
   Heading,
   Button,
   Modal,
+  Search,
 } from '@carbon/react'
 import { useUsers } from '../../hooks/useUsers'
-import { Add, Search, TextClearFormat } from '@carbon/icons-react'
+import { Add, Search as SearchIcon } from '@carbon/icons-react'
 
 const headers = [
   { key: 'id', header: 'ID' },
@@ -110,23 +111,28 @@ export const Users = () => {
           <TableContainer>
             <TableToolbar>
               <TableToolbarContent>
-                <TextInput 
-                id='username-like-input' 
-                labelText='usernamelike' hideLabel 
-                placeholder='filter by username'
-                value={filterusername}
-                onChange={(e) => setFilterusername(e.target.value)}
+                <Search
+                  closeButtonLabelText='clear search input'
+                  id='search-by-name'
+                  labelText='search filter by username'
+                  type='search'
+                  placeholder='filter by username'
+                  value={filterusername}
+                  onChange={(e) => setFilterusername(e.target.value)}
+                  onKeyUp={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearch(filterusername)
+                    }
+                  }}
+                  onClear={() => {
+                    setFilterusername('')
+                    handleSearch('')
+                  }}
                 />
                 <IconButton label='search' onClick={() => {
                   handleSearch(filterusername)
                 }}>
-                  <Search />
-                </IconButton>
-                <IconButton label='clear' onClick={() => {
-                  setFilterusername('')
-                  handleSearch('')
-                }}>
-                  <TextClearFormat />
+                  <SearchIcon />
                 </IconButton>
               </TableToolbarContent>
             </TableToolbar>

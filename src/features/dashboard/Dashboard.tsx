@@ -1,10 +1,12 @@
 import { Button, Stack, TextInput } from "@carbon/react"
-import { InputWithButton } from "../../components/InputWithButton"
+import { SelectPickField } from "../../components/InputWithButton"
+import { useState } from "react"
 
 const Dashboard = () => {
+  const [ roleID, setRoleID ] = useState('1')
   return (
     <Stack>
-      <InputWithButton id="role-picker" labelText="Role" />
+      <SelectPickField value={roleID} id="role-picker" labelText="Role" onSelect={(newID) => {setRoleID(newID)}} hideLabel />
       <div style={{marginBottom: '1rem'}} />
       <TextInput id='some-test-input' labelText='some test' />
       <div style={{marginBottom: '1rem'}} />
