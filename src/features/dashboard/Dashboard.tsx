@@ -1,18 +1,15 @@
 import { Button, ComboBox, Stack, TextInput } from "@carbon/react"
 import { SelectPickField } from "../../components/InputWithButton"
 import { useState } from "react"
-
-interface DropdownItem {
-  id: string
-  label: string
-}
+import { type DropdownItem } from "../../types/dropdownItem"
 
 const Dashboard = () => {
   const [ roleID, setRoleID ] = useState('1')
-  const [ selectedItem, setSelectedItem ] = useState<DropdownItem | null>()
-  const [ typedInput, setTypedInput] = useState('')
+  const [ roleValue, setRoleValue ] = useState<DropdownItem | null | undefined>({ id: '2', label: 'Option Two'}) // initialized value
+  const [ roleInputSearch, setRoleInputSearch] = useState('')
 
-  const items: DropdownItem[] = [
+  // pull data from hook, transform into DropdownItem[]
+  const items: DropdownItem[] | null = [
     {
       id: '1',
       label: 'Option One',
@@ -22,7 +19,7 @@ const Dashboard = () => {
       label: 'Option Two',
     },
     {
-      id: 'e',
+      id: '3',
       label: 'Option Three',
     }
   ]
@@ -32,20 +29,25 @@ const Dashboard = () => {
       <SelectPickField value={roleID} 
         id="role-picker" labelText="Role" 
         onSelect={(newID) => {setRoleID(newID)}} hideLabel />
+      
       <div style={{marginBottom: '1rem', marginTop: '1rem', width: '50%'}}>
-        <p style={{marginTop: '1rem'}}>
-          Typed Result: {typedInput}
+        <p style={{marginBottom: '1rem'}}>
+          Selected Item: {roleValue !== null ? `${roleValue?.id} - ${roleValue?.label}` : ''}<br />
+          Input search: {roleInputSearch}
         </p>
-        <ComboBox id="role-picker-dropdown" 
-          items={items} 
-          titleText="type"
-          onInputChange={(txt) => setTypedInput(txt)}
-          onChange={(data) => setSelectedItem(data.selectedItem)} />
-        <p style={{marginTop: '1rem'}}>
-          {selectedItem?.id} - {selectedItem?.label}
-        </p>
-        
+
+        <ComboBox id="role-select"
+          placeholder="select a role..."
+          items={items}
+          onInputChange={(txt) => setRoleInputSearch(txt)} // use this to capture typing
+          itemToString={(item) => (item ? item.label : '')}
+          selectedItem={roleValue}
+          onChange={({selectedItem: newSelection}) => {
+            setRoleValue(newSelection)
+          }}
+        />
       </div>
+
       <div style={{marginBottom: '1rem'}} />
       <TextInput id='some-test-input' labelText='some test' />
       <div style={{marginBottom: '1rem'}} />
