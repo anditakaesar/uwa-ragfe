@@ -1,4 +1,4 @@
-import { Fade, Logout, Notification, UserProfile } from "@carbon/icons-react"
+import { Logout, Notification, UserProfile } from "@carbon/icons-react"
 import {
   Header,
   HeaderContainer,
