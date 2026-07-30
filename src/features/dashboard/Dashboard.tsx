@@ -13,7 +13,7 @@ const Dashboard = () => {
         <Button style={buttonFullsize} href="/dashboard/playground">Playground</Button>
       </Column>
       <Column lg={4}>
-        <Button style={buttonFullsize} href="/dashboard/playground">Next Menu</Button>
+        <Button style={buttonFullsize} href="/dashboard/auditlogs">Audit Logs</Button>
       </Column>
       <Column lg={4}>
         <Button style={buttonFullsize} href="/dashboard/playground">Next Feature</Button>
