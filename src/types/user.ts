@@ -18,3 +18,9 @@ export interface GetUsersResponseMeta {
   usernamelike: string | null
   pagination: PaginationMeta
 }
+
+export interface CreateUserRequest {
+  username: string
+  password: string
+  roleID: number
+}

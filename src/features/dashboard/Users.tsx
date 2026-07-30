@@ -20,9 +20,15 @@ import {
   Button,
   Modal,
   Search,
+  ComboBox,
+  Callout,
 } from '@carbon/react'
-import { useUsers } from '../../hooks/useUsers'
+import { useCreateUser, useUsers } from '../../hooks/users'
 import { Add, Search as SearchIcon } from '@carbon/icons-react'
+import { useDebounce } from '../../hooks/useDebounce'
+import { useRolesLookup } from '../../hooks/roles'
+import type { DropdownItem } from '../../types/dropdownItem'
+import axios from 'axios'
 
 const headers = [
   { key: 'id', header: 'ID' },
@@ -33,18 +39,112 @@ const headers = [
 
 const NewUserModal = () => {
   const [modalOpen, setModalOpen] = useState(false)
+  const [roleValue, setRoleValue] = useState<DropdownItem | null | undefined>()
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+
+  const [errmessage, setErrmessage] = useState('')
+  const [roleInputSearch, setRoleInputSearch] = useState('')
+  const debouncedSearch = useDebounce(roleInputSearch, 300)
+  const { data: roleRef, isLoading } = useRolesLookup({
+    page: 1,
+    size: 50,
+    name: debouncedSearch,
+  })
+
+  const itemsList = roleRef?.map ?? []
+
+  const { mutate } = useCreateUser()
+
+  const handleSubmit = () => {
+    const roleID = roleValue ? parseInt(roleValue?.id) : 0
+    mutate(
+      {username, password, roleID},
+      {
+        onSuccess: () => {
+          setUsername('')
+          setPassword('')
+          setRoleValue(null)
+          setModalOpen(false)
+          setErrmessage('')
+        },
+        onError: (error: unknown) => {
+          if (axios.isAxiosError(error)) {
+            if (error.response) {
+              const { data } = error.response
+              setErrmessage(data.error?.message || 'Create user failed')
+            } else {
+              console.error('Network error or no response')
+            }
+          } else {
+            const err = error as Error
+            console.error('Standard error:', err.message)
+          }
+        }
+      }
+    )
+  }
+
+  const spacer = () => {
+    return (<div style={{marginBottom: '1rem'}} />) 
+  }
 
   return (
     <>
     <Button type='button' onClick={() => setModalOpen(true)} renderIcon={Add}>
-          New
+      New
     </Button>
-    <Modal open={modalOpen} onRequestClose={() => setModalOpen(false)} primaryButtonText="Add" secondaryButtonText="Cancel">
-      <p style={{marginBottom: '1rem'}}>
-        Create new user here
-      </p>
-      <TextInput data-modal-primary-focus id='username' type='text' labelText='username' placeholder='username here...' style={{marginBottom: '1rem'}} />
-      <TextInput id='password' type='password' labelText='password' placeholder='password here...' style={{marginBottom: '1rem'}} />
+
+    <Modal open={modalOpen}
+      onRequestClose={() => setModalOpen(false)} 
+      primaryButtonText="Add" 
+      secondaryButtonText="Cancel"
+      onRequestSubmit={handleSubmit}
+      >
+      
+      <div style={{marginBottom: '1.5rem'}}>
+        <h2>Create New User</h2>
+      </div>
+      
+      <div style={{width: '50%'}}>
+      <ComboBox 
+          id="role-select"
+          placeholder={isLoading ? "Loading roles..." : "Select a role..."}
+          items={itemsList}
+          itemToString={(item) => (item ? item.label : '')}
+          onInputChange={(txt) => setRoleInputSearch(txt)}
+          selectedItem={roleValue}
+          onChange={({ selectedItem: newSelection }) => {
+            setRoleValue(newSelection)
+          }}
+          titleText="Role"
+        />
+      </div>
+      {spacer()}
+      <TextInput
+        id='username' 
+        value={username} 
+        onChange={(e) => setUsername(e.target.value)}
+        type='text' 
+        labelText='username' 
+        placeholder='username here...' />
+      {spacer()}
+      <TextInput 
+      id='password' 
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      type='password' 
+      labelText='password' 
+      placeholder='password here...' />
+      {spacer()}
+      <Callout className={ !errmessage ? 'hidden': ''}
+        aria-label='error login notification'
+        kind='error'
+        role='status'
+        title='Error Create User'
+        subtitle={errmessage}
+      />
+      {spacer()}
     </Modal>
     </>
   )

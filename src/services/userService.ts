@@ -1,6 +1,6 @@
 import { axiosClient } from "../api/axiosClient";
-import type { ApiResponseWithMeta } from "../api/types";
-import type { GetUsersRequest, GetUsersResponseMeta, User } from "../types/user";
+import type { ApiResponse, ApiResponseWithMeta } from "../api/types";
+import type { CreateUserRequest, GetUsersRequest, GetUsersResponseMeta, User } from "../types/user";
 
 export const userService = {
   getUsers: async (params?: GetUsersRequest): Promise<ApiResponseWithMeta<User[], GetUsersResponseMeta>> => {
@@ -14,5 +14,9 @@ export const userService = {
     return response.data
   },
 
-  // other interfaces here such as updateUser()
+  newUser: async (params: CreateUserRequest): Promise<ApiResponse<User>> => {
+    const response = await axiosClient.post<ApiResponse<User>>('/users', params)
+
+    return response.data
+  },
 }
