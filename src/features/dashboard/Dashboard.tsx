@@ -13,10 +13,10 @@ const Dashboard = () => {
         <Button style={buttonFullsize} href="/dashboard/playground">Playground</Button>
       </Column>
       <Column lg={4}>
-        <Button style={buttonFullsize} href="/dashboard/auditlogs">Audit Logs</Button>
+        <Button style={buttonFullsize} href="/dashboard/upload">Upload</Button>
       </Column>
       <Column lg={4}>
-        <Button style={buttonFullsize} href="/dashboard/playground">Next Feature</Button>
+        <Button style={buttonFullsize} href="/dashboard/auditlogs">Audit Logs</Button>
       </Column>
     </Grid>
     <div style={{marginTop: '2rem'}} />
