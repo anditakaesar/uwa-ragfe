@@ -9,6 +9,11 @@ export const axiosClient = axios.create({
   withCredentials: true,
 })
 
+export const apiClientS3 = axios.create({
+  timeout: 10_000,
+  withCredentials: false,
+})
+
 let isRefreshing = false
 let failedQueue: Array<{
   resolve: (token: string) => void

@@ -13,7 +13,7 @@ import { Theme } from '@carbon/react'
 import ProfilePage from './features/auth/Profile'
 import Playground from './features/dashboard/Playground'
 import AuditLogs from './features/dashboard/AuditLogs'
-import FilesUpload from './features/dashboard/FilesUpload'
+import Files from './features/dashboard/Files'
 
 const RootRedirect = () => {
   const { isAuthenticated, loading } = useAuth()
@@ -43,7 +43,7 @@ function App() {
                 <Route path="/dashboard/users" element={<MainLayout children={<Users />} />} />
                 <Route path="/dashboard/auditlogs" element={<MainLayout children={<AuditLogs />} />} />
                 <Route path="/dashboard/playground" element={<MainLayout children={<Playground />} />} />
-                <Route path="/dashboard/upload" element={<MainLayout children={<FilesUpload />} />} />
+                <Route path="/dashboard/upload" element={<MainLayout children={<Files />} />} />
                 <Route path="/profile" element={<MainLayout children={<ProfilePage />} />} />
               </Route>
             </Routes>

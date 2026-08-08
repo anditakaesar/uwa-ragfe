@@ -78,10 +78,10 @@ const MainHeader = () => {
               <MenuButton
                 label={returnName()} // change into username?
                 className="action-icons">
-                <MenuItem label="My Profile" renderIcon={() => <UserProfile />} onClick={() => {
+                <MenuItem label="My Profile" renderIcon={UserProfile} onClick={() => {
                   navigate('/profile')
                 }} />
-                <MenuItem label="Sign Out" kind="danger" onClick={logout} renderIcon={() => <Logout />} />
+                <MenuItem label="Sign Out" kind="danger" onClick={logout} renderIcon={Logout} />
               </MenuButton>
             </HeaderGlobalBar>
           </Header>
