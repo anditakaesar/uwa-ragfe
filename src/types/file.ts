@@ -7,6 +7,7 @@ export interface File {
   mimeType: string
   sizeBytes: number
   sizeHumanize: string
+  thumbnailURL: string
   status: string
   createdAt: string
 }

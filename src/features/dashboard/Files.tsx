@@ -17,12 +17,17 @@ import {
   Button,
   ProgressBar,
   FeatureFlags,
+  IconButton,
+  Modal,
+  TableExpandHeader,
+  TableExpandRow,
+  TableExpandedRow,
 } from "@carbon/react"
-import { useState } from "react"
-import { useFiles, useUploadFile } from "../../hooks/files"
+import React, { useState } from "react"
+import { useDeleteFile, useFiles, useUploadFile } from "../../hooks/files"
 import axios from "axios"
 import { fileService } from "../../services/fileService"
-import { Download } from "@carbon/icons-react"
+import { Download, SettingsView, TrashCan } from "@carbon/icons-react"
 
 const headers = [
   { key: 'no', header: 'No' },
@@ -31,10 +36,22 @@ const headers = [
   { key: 'mimeType', header: 'MIME Type' },
   { key: 'sizeHumanize', header: 'Size' },
   { key: 'status', header: 'Status' },
-  { key: 'createdAt', header: 'Created At' }
+  { key: 'createdAt', header: 'Created At' },
+  { key: 'thumbnailURL', header: 'Thumbnail URL' }
 ]
 
 type FileUploadStatus = "edit" | "complete" | "uploading"
+
+interface RowData {
+  no: number
+  id: string
+  originalName: string
+  mimeType: string
+  sizeHumanize: string
+  thumbnailURL: string
+  status: string
+  createdAt: string
+}
 
 const UploadSection = () => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
@@ -134,6 +151,11 @@ const UploadSection = () => {
 const Files = () => {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false)
+  const [rowToDelete, setRowToDelete] = useState<RowData | null>(null)
+  const [deleteErr, setDeleteErr] = useState('')
+
+  const { mutate } = useDeleteFile()
 
   const { data, isLoading, isError, error, isFetching } = useFiles({
     page,
@@ -150,87 +172,185 @@ const Files = () => {
     window.open(response.data, '_blank', 'noopener,noreferrer');
   };
 
-  const rows =
-    data?.data.map((doc, index) => ({
-      no: index + 1 + (page - 1) * pageSize,
-      id: doc.id,
-      originalName: doc.originalName,
-      mimeType: doc.mimeType,
-      sizeHumanize: doc.sizeHumanize,
-      status: doc.status,
-      createdAt: new Date(doc.createdAt).toLocaleString()
-    })) || []
+  const handleDelete = async () => {
+    if (rowToDelete) {
+      mutate(
+        rowToDelete.id,
+        {
+          onSuccess: () => {
+            setConfirmModalOpen(false)
+            setRowToDelete(null)
+          },
+          onError: (error: unknown) => {
+            if (axios.isAxiosError(error)) {
+              if (error.response) {
+                const { data } = error.response
+                setDeleteErr(data.error?.message || data.message || 'Delete file failed')
+              } else {
+                setDeleteErr('Network error or failed to reach upload server')
+              }
+            } else {
+              const err = error as Error
+              setDeleteErr(err.message || 'Delete file failed')
+            }
+          }
+        }
+      )
+    }
 
-  const totalItems = data?.meta.pagination.total || 0
+}
 
-  if (isLoading) {
-    return <DataTableSkeleton headers={headers} rowCount={pageSize} columnCount={4} />
-  }
+const handleDeleteModal = (fileID: string) => {
+  setConfirmModalOpen(true)
+  const idx = rows.findIndex(row => row.id == fileID)
+  setRowToDelete(rows[idx])
+}
 
-  if (isError) {
-    return (
-      <InlineNotification
-        kind="error"
-        title="Failed to fetch files"
-        subtitle={error instanceof Error ? error.message : 'An unexpected error occurred'}
-      />
-    )
-  }
+const handleGenerateThumbnail = async (fileID: string) => {
+  console.log("generate thumbnail", fileID)
+  await fileService.generateThumbnail(fileID)
+}
 
+
+
+const rows =
+  data?.data.map((doc, index) => ({
+    no: index + 1 + (page - 1) * pageSize,
+    id: doc.id,
+    originalName: doc.originalName,
+    mimeType: doc.mimeType,
+    sizeHumanize: doc.sizeHumanize,
+    thumbnailURL: doc.thumbnailURL,
+    status: doc.status,
+    createdAt: new Date(doc.createdAt).toLocaleString()
+  })) || []
+
+const totalItems = data?.meta.pagination.total || 0
+
+if (isLoading) {
+  return <DataTableSkeleton headers={headers} rowCount={pageSize} columnCount={4} />
+}
+
+if (isError) {
   return (
-    <>
-      <div style={{ opacity: isFetching ? 0.6 : 1, transition: 'opacity 0.2s' }}>
-        <Section as="div">
-          <Heading>Files Management</Heading>
-          <p style={{ marginBottom: '2rem' }}>
-            List of uploaded files in the system
-          </p>
-        </Section>
-        <UploadSection />
-        <div style={{ marginBottom: '2rem' }} />
-        <DataTable rows={rows} headers={headers}>
-          {({ rows, headers, getTableProps }) => (
-            <TableContainer>
-              <Table {...getTableProps()}>
-                <TableHead>
-                  <TableRow>
-                    {headers.map((header) => (
-                      <TableHeader key={header.key}>
-                        {header.header}
-                      </TableHeader>
-                    ))}
-                    <TableHeader>
-                      Action
-                    </TableHeader>
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {rows.map((row) => (
-                    <TableRow key={row.id}>
-                      {row.cells.map((cell) => (
-                        <TableCell key={cell.id}>{cell.value}</TableCell>
-                      ))}
-                      <TableCell>
-                        <Button kind="secondary" size="sm" renderIcon={Download} onClick={() => handleDownload(row.id)}>Download</Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </TableContainer>
-          )}
-        </DataTable>
-
-        <Pagination
-          page={page}
-          pageSize={pageSize}
-          pageSizes={[10, 20, 30]}
-          totalItems={totalItems}
-          onChange={handlePaginationChange}
-        />
-      </div>
-    </>
+    <InlineNotification
+      kind="error"
+      title="Failed to fetch files"
+      subtitle={error instanceof Error ? error.message : 'An unexpected error occurred'}
+    />
   )
+}
+
+return (
+  <>
+    <div style={{ opacity: isFetching ? 0.6 : 1, transition: 'opacity 0.2s', marginBottom: '2rem' }}>
+      <Section as="div">
+        <Heading>Files Management</Heading>
+        <p style={{ marginBottom: '2rem' }}>
+          List of uploaded files in the system
+        </p>
+      </Section>
+      <UploadSection />
+      <Callout className={!deleteErr ? 'hidden' : ''}
+        aria-label='error while deleting'
+        kind='error'
+        role='status'
+        title='Delete File Error'
+        subtitle={deleteErr}
+      />
+      <div style={{ marginBottom: '2rem' }} />
+      <DataTable rows={rows} headers={headers}>
+        {({ rows, headers, getRowProps, getTableProps }) => (
+          <TableContainer>
+            <Table {...getTableProps()}>
+              <TableHead>
+                <TableRow>
+                  <TableExpandHeader />
+                  {headers.map((header) => (
+                    <TableHeader key={header.key} hidden={header.key === 'thumbnailURL'}>
+                      {header.header}
+                    </TableHeader>
+                  ))}
+                  <TableHeader>
+                    Action
+                  </TableHeader>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {rows.map((row) => {
+                  const rowProps = getRowProps({ row })
+
+                  const thumbnailCell = row.cells.find(
+                    (cell) => cell.info?.header === 'thumbnailURL' || cell.id.endsWith('thumbnailURL')
+                  );
+                  const thumbnailURL = thumbnailCell?.value;
+                  return (
+                    <React.Fragment key={row.id}>
+                      <TableExpandRow {...rowProps} key={row.id}>
+                        {row.cells.map((cell) => (
+                          <TableCell key={cell.id} hidden={cell.info.header === 'thumbnailURL'}>{cell.value}</TableCell>
+                        ))}
+                        <TableCell>
+                          <IconButton kind="secondary" size="sm" label="download" onClick={() => handleDownload(row.id)}>
+                            <Download />
+                          </IconButton>
+                          <IconButton kind="secondary" style={{ marginLeft: '0.25rem' }} size="sm" label="generate-thumbnail" onClick={() => { handleGenerateThumbnail(row.id) }}>
+                            <SettingsView />
+                          </IconButton>
+                          <IconButton kind="secondary" style={{ marginLeft: '0.25rem' }} size="sm" label="delete" onClick={() => handleDeleteModal(row.id)}>
+                            <TrashCan />
+                          </IconButton>
+                        </TableCell>
+                      </TableExpandRow>
+
+                      {row.isExpanded && (
+                        <TableExpandedRow colSpan={headers.length + 2}>
+                          <strong>Extended Description: </strong>
+                          <img
+                            src={thumbnailURL}
+                            alt="Thumbnail"
+                            style={{ maxHeight: '25rem', display: 'block', marginTop: '0.5rem', borderRadius: '4px' }}
+                          />
+                        </TableExpandedRow>
+                      )}
+                    </React.Fragment>
+                  )
+                })}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </DataTable>
+
+      <Pagination
+        page={page}
+        pageSize={pageSize}
+        pageSizes={[10, 20, 30]}
+        totalItems={totalItems}
+        onChange={handlePaginationChange}
+      />
+    </div>
+    <Modal
+      danger
+      modalHeading="Are you sure you want to delete this file?"
+      modalLabel="File resources"
+      onRequestClose={() => setConfirmModalOpen(false)}
+      onRequestSubmit={handleDelete}
+      primaryButtonText="Delete"
+      secondaryButtonText="Cancel"
+      open={confirmModalOpen}
+    >
+      <p>
+        {rowToDelete?.id}: {rowToDelete?.originalName}
+        <img
+          src={rowToDelete?.thumbnailURL}
+          alt="Thumbnail"
+          style={{ maxHeight: '10rem', display: 'block', marginTop: '0.5rem', borderRadius: '4px' }}
+        />
+      </p>
+    </Modal>
+  </>
+)
 }
 
 export default Files

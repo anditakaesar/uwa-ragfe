@@ -1,8 +1,7 @@
-import type { AxiosProgressEvent, AxiosResponse } from "axios"
-import { axiosClient, apiClientS3 } from "../api/axiosClient"
+import type { AxiosResponse } from "axios"
+import { axiosClient } from "../api/axiosClient"
 import type { ApiResponse, ApiResponseWithMeta } from "../api/types"
 import type { File as Doc, GetFilesRequest, GetFilesResponseMeta, PresignedURLResponse } from "../types/file"
-import axios, { HttpStatusCode } from "axios"
 
 export interface PresignedURLParam {
 	Name:      string
@@ -42,21 +41,10 @@ export const fileService = {
     return response.data
   },
 
-  uploadFile: async (param: UploadFileRequest) : Promise<AxiosResponse<void>> => {
-    const response = await axios.put(param.PresignURL, param.ContentFile, {
-      headers: {
-        'Content-Type': param.ContentFile.type || 'application/octet-stream',
-      },
-      onUploadProgress: (progressEvent: AxiosProgressEvent): void => {
-        if (param.onProgress && progressEvent.total) {
-          const precentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          )
-          param.onProgress(precentCompleted)
-        }
-      }
-    })
-    return response
+  generateThumbnail: async (fileID: string): Promise<ApiResponse<string>> => {
+    const response = await axiosClient.post<ApiResponse<string>>(`/files/${fileID}/enqueue-thumbnail`)
+
+    return response.data
   },
 
   updateStatus: async (fileID: string, status: 'completed' | 'failed'): Promise<AxiosResponse<void>> => {
@@ -65,5 +53,11 @@ export const fileService = {
     })
 
     return response
+  },
+
+  deleteFile: async (fileID: string): Promise<ApiResponse<string>> => {
+    const response = await axiosClient.delete<ApiResponse<string>>(`/files/${fileID}`)
+
+    return response.data
   }
 }

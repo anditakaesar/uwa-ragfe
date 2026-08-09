@@ -49,7 +49,24 @@ export const useUploadFile = () => {
         status: respStatus
       })
 
+      await fileService.generateThumbnail(responseGen.data.fileID)
+
       return uploadRes.data
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['files'] })
+    }
+  })
+}
+
+export const useDeleteFile = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: async (fileID: string) => {
+      const responseDelete = await fileService.deleteFile(fileID)
+
+      return responseDelete.data
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['files'] })
