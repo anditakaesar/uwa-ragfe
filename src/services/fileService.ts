@@ -28,6 +28,9 @@ export const fileService = {
 
   getFiles: async (params?: GetFilesRequest): Promise<ApiResponseWithMeta<Doc[], GetFilesResponseMeta>> => {
     const response = await axiosClient.get<ApiResponseWithMeta<Doc[], GetFilesResponseMeta>>('/files', {
+      paramsSerializer: {
+        indexes: null
+      },
       params: {
         mimeTypes: params?.mimeTypes,
         page: params?.page,
