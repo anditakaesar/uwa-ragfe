@@ -10,10 +10,10 @@ const Dashboard = () => {
         <Button style={buttonFullsize} href="/dashboard/users">Users</Button>
       </Column>
       <Column lg={4}>
-        <Button style={buttonFullsize} href="/dashboard/playground">Playground</Button>
+        <Button style={buttonFullsize} href="/dashboard/upload-documents">Upload Documents</Button>
       </Column>
       <Column lg={4}>
-        <Button style={buttonFullsize} href="/dashboard/upload">Upload</Button>
+        <Button style={buttonFullsize} href="/dashboard/upload-images">Upload Images</Button>
       </Column>
       <Column lg={4}>
         <Button style={buttonFullsize} href="/dashboard/auditlogs">Audit Logs</Button>

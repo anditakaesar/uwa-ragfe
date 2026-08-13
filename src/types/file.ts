@@ -13,6 +13,7 @@ export interface File {
 }
 
 export interface GetFilesRequest {
+  mimeTypes?: string[],
   page?: number
   size?: number
 }

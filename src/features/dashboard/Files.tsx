@@ -29,6 +29,34 @@ import axios from "axios"
 import { fileService } from "../../services/fileService"
 import { Download, SettingsView, TrashCan } from "@carbon/icons-react"
 
+const MIME_TO_EXTENSION = {
+  'image/png': '.png',
+  'image/jpeg': '.jpg',
+  'image/jpg': '.jpg',
+  'image/gif': '.gif',
+  'image/webp': '.webp',
+  'image/svg+xml': '.svg',
+  'image/bmp': '.bmp',
+  'application/pdf': '.pdf',
+  'application/msword': '.doc',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
+  'application/vnd.ms-excel': '.xls',
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': '.xlsx',
+  'application/vnd.ms-powerpoint': '.ppt',
+  'application/vnd.openxmlformats-officedocument.presentationml.presentation': '.pptx',
+  'text/plain': '.txt',
+  'text/markdown': '.md',
+  'text/csv': '.csv',
+  'application/zip': '.zip',
+  'application/gzip': '.gz',
+  'application/json': '.json',
+} as const
+
+export type MimeType = keyof typeof MIME_TO_EXTENSION
+
+const mimeTypesToExtensions = (mimeTypes: MimeType[]): string[] =>
+  mimeTypes.map((mimeType) => MIME_TO_EXTENSION[mimeType])
+
 const headers = [
   { key: 'no', header: 'No' },
   { key: 'id', header: 'ID' },
@@ -53,11 +81,12 @@ interface RowData {
   createdAt: string
 }
 
-const UploadSection = () => {
+const UploadSection = ({ acceptedMimeTypes }: { acceptedMimeTypes?: MimeType[] }) => {
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [uploadErr, setUploadErr] = useState('')
   const [uploadProgress, setUploadProgress] = useState(0)
   const [fileStatus, setFileStatus] = useState<FileUploadStatus>('edit')
+  const acceptedExtensions = (acceptedMimeTypes && mimeTypesToExtensions(acceptedMimeTypes))
 
   const { mutate, isPending } = useUploadFile()
 
@@ -100,29 +129,39 @@ const UploadSection = () => {
     }
   }
 
+  const handleAddFiles = (_: React.SyntheticEvent<HTMLElement, Event>, content: { addedFiles: Array<File & { invalidFileType?: boolean }> }): void => {
+    content.addedFiles.forEach((value) => {
+      const valid = !acceptedMimeTypes || (acceptedMimeTypes.findIndex((m) => m === value.type) > -1)
+
+      if (!valid) {
+        setUploadErr(`Invalid file type: ${value.type}`)
+      } else {
+        setUploadedFiles([value])
+        setFileStatus('edit')
+      }
+    })
+  }
+
+  const handleDeleteFile = () => {
+    setUploadErr('')
+    setUploadedFiles([])
+  }
+
   return (
     <>
       <div style={{ marginBottom: '1rem' }}>
         <FeatureFlags enableEnhancedFileUploader>
           <FileUploader
-            accept={[
-              '.jpg',
-              '.png'
-            ]}
+            accept={acceptedExtensions}
             buttonKind="primary"
             buttonLabel="Add file"
             filenameStatus={fileStatus}
             iconDescription="Delete file"
-            labelDescription="JPG or PNG only"
+            labelDescription={acceptedExtensions ? `${acceptedExtensions?.join(', ')} only` : ''}
             name="fileupload"
-            onAddFiles={(_, content) => {
-              content.addedFiles.forEach((value) => {
-                setUploadedFiles([value])
-              })
-              setFileStatus('edit')
-            }}
+            onAddFiles={handleAddFiles}
+            onDelete={handleDeleteFile}
             size="md"
-
             disabled={uploadedFiles.length !== 0 || isPending}
           />
         </FeatureFlags>
@@ -148,7 +187,7 @@ const UploadSection = () => {
   )
 }
 
-const Files = () => {
+const Files = ({ mimeTypes, title }: { mimeTypes?: MimeType[], title?: string }) => {
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [confirmModalOpen, setConfirmModalOpen] = useState(false)
@@ -158,6 +197,7 @@ const Files = () => {
   const { mutate } = useDeleteFile()
 
   const { data, isLoading, isError, error, isFetching } = useFiles({
+    mimeTypes: mimeTypes,
     page,
     size: pageSize,
   })
@@ -198,159 +238,164 @@ const Files = () => {
       )
     }
 
-}
+  }
 
-const handleDeleteModal = (fileID: string) => {
-  setConfirmModalOpen(true)
-  const idx = rows.findIndex(row => row.id == fileID)
-  setRowToDelete(rows[idx])
-}
+  const handleDeleteModal = (fileID: string) => {
+    setConfirmModalOpen(true)
+    const idx = rows.findIndex(row => row.id == fileID)
+    setRowToDelete(rows[idx])
+  }
 
-const handleGenerateThumbnail = async (fileID: string) => {
-  console.log("generate thumbnail", fileID)
-  await fileService.generateThumbnail(fileID)
-}
+  const handleGenerateThumbnail = async (fileID: string) => {
+    await fileService.generateThumbnail(fileID)
+  }
 
+  const rows =
+    data?.data.map((doc, index) => ({
+      no: index + 1 + (page - 1) * pageSize,
+      id: doc.id,
+      originalName: doc.originalName,
+      mimeType: doc.mimeType,
+      sizeHumanize: doc.sizeHumanize,
+      thumbnailURL: doc.thumbnailURL,
+      status: doc.status,
+      createdAt: new Date(doc.createdAt).toLocaleString()
+    })) || []
 
+  const totalItems = data?.meta.pagination.total || 0
 
-const rows =
-  data?.data.map((doc, index) => ({
-    no: index + 1 + (page - 1) * pageSize,
-    id: doc.id,
-    originalName: doc.originalName,
-    mimeType: doc.mimeType,
-    sizeHumanize: doc.sizeHumanize,
-    thumbnailURL: doc.thumbnailURL,
-    status: doc.status,
-    createdAt: new Date(doc.createdAt).toLocaleString()
-  })) || []
+  if (isLoading) {
+    return <DataTableSkeleton headers={headers} rowCount={pageSize} columnCount={4} />
+  }
 
-const totalItems = data?.meta.pagination.total || 0
+  if (isError) {
+    return (
+      <InlineNotification
+        kind="error"
+        title="Failed to fetch files"
+        subtitle={error instanceof Error ? error.message : 'An unexpected error occurred'}
+      />
+    )
+  }
 
-if (isLoading) {
-  return <DataTableSkeleton headers={headers} rowCount={pageSize} columnCount={4} />
-}
-
-if (isError) {
   return (
-    <InlineNotification
-      kind="error"
-      title="Failed to fetch files"
-      subtitle={error instanceof Error ? error.message : 'An unexpected error occurred'}
-    />
-  )
-}
-
-return (
-  <>
-    <div style={{ opacity: isFetching ? 0.6 : 1, transition: 'opacity 0.2s', marginBottom: '2rem' }}>
-      <Section as="div">
-        <Heading>Files Management</Heading>
-        <p style={{ marginBottom: '2rem' }}>
-          List of uploaded files in the system
-        </p>
-      </Section>
-      <UploadSection />
-      <Callout className={!deleteErr ? 'hidden' : ''}
-        aria-label='error while deleting'
-        kind='error'
-        role='status'
-        title='Delete File Error'
-        subtitle={deleteErr}
-      />
-      <div style={{ marginBottom: '2rem' }} />
-      <DataTable rows={rows} headers={headers}>
-        {({ rows, headers, getRowProps, getTableProps }) => (
-          <TableContainer>
-            <Table {...getTableProps()}>
-              <TableHead>
-                <TableRow>
-                  <TableExpandHeader />
-                  {headers.map((header) => (
-                    <TableHeader key={header.key} hidden={header.key === 'thumbnailURL'}>
-                      {header.header}
-                    </TableHeader>
-                  ))}
-                  <TableHeader>
-                    Action
-                  </TableHeader>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {rows.map((row) => {
-                  const rowProps = getRowProps({ row })
-
-                  const thumbnailCell = row.cells.find(
-                    (cell) => cell.info?.header === 'thumbnailURL' || cell.id.endsWith('thumbnailURL')
-                  );
-                  const thumbnailURL = thumbnailCell?.value;
-                  return (
-                    <React.Fragment key={row.id}>
-                      <TableExpandRow {...rowProps} key={row.id}>
-                        {row.cells.map((cell) => (
-                          <TableCell key={cell.id} hidden={cell.info.header === 'thumbnailURL'}>{cell.value}</TableCell>
-                        ))}
-                        <TableCell>
-                          <IconButton kind="secondary" size="sm" label="download" onClick={() => handleDownload(row.id)}>
-                            <Download />
-                          </IconButton>
-                          <IconButton kind="secondary" style={{ marginLeft: '0.25rem' }} size="sm" label="generate-thumbnail" onClick={() => { handleGenerateThumbnail(row.id) }}>
-                            <SettingsView />
-                          </IconButton>
-                          <IconButton kind="secondary" style={{ marginLeft: '0.25rem' }} size="sm" label="delete" onClick={() => handleDeleteModal(row.id)}>
-                            <TrashCan />
-                          </IconButton>
-                        </TableCell>
-                      </TableExpandRow>
-
-                      {row.isExpanded && (
-                        <TableExpandedRow colSpan={headers.length + 2}>
-                          <strong>Extended Description: </strong>
-                          <img
-                            src={thumbnailURL}
-                            alt="Thumbnail"
-                            style={{ maxHeight: '25rem', display: 'block', marginTop: '0.5rem', borderRadius: '4px' }}
-                          />
-                        </TableExpandedRow>
-                      )}
-                    </React.Fragment>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        )}
-      </DataTable>
-
-      <Pagination
-        page={page}
-        pageSize={pageSize}
-        pageSizes={[10, 20, 30]}
-        totalItems={totalItems}
-        onChange={handlePaginationChange}
-      />
-    </div>
-    <Modal
-      danger
-      modalHeading="Are you sure you want to delete this file?"
-      modalLabel="File resources"
-      onRequestClose={() => setConfirmModalOpen(false)}
-      onRequestSubmit={handleDelete}
-      primaryButtonText="Delete"
-      secondaryButtonText="Cancel"
-      open={confirmModalOpen}
-    >
-      <p>
-        {rowToDelete?.id}: {rowToDelete?.originalName}
-        <img
-          src={rowToDelete?.thumbnailURL}
-          alt="Thumbnail"
-          style={{ maxHeight: '10rem', display: 'block', marginTop: '0.5rem', borderRadius: '4px' }}
+    <>
+      <div style={{ opacity: isFetching ? 0.6 : 1, transition: 'opacity 0.2s', marginBottom: '2rem' }}>
+        <Section as="div">
+          <Heading>{title ? title : 'File Management'}</Heading>
+          <p style={{ marginBottom: '2rem' }}>
+            List of uploaded files in the system
+          </p>
+        </Section>
+        <UploadSection acceptedMimeTypes={mimeTypes} />
+        <Callout className={!deleteErr ? 'hidden' : ''}
+          aria-label='error while deleting'
+          kind='error'
+          role='status'
+          title='Delete File Error'
+          subtitle={deleteErr}
         />
-      </p>
-    </Modal>
-  </>
-)
+        <div style={{ marginBottom: '2rem' }} />
+        <DataTable rows={rows} headers={headers}>
+          {({ rows, headers, getRowProps, getTableProps }) => (
+            <TableContainer>
+              <Table {...getTableProps()}>
+                <TableHead>
+                  <TableRow>
+                    <TableExpandHeader />
+                    {headers.map((header) => (
+                      <TableHeader key={header.key} hidden={header.key === 'thumbnailURL'}>
+                        {header.header}
+                      </TableHeader>
+                    ))}
+                    <TableHeader>
+                      Action
+                    </TableHeader>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.map((row) => {
+                    const rowProps = getRowProps({ row })
+
+                    const mimeTypeCell = row.cells.find(
+                      (cell) => cell.info?.header === 'mimeType' || cell.id.endsWith('mimetype')
+                    )
+
+                    const isImage = mimeTypeCell?.value.startsWith('image') ?? false
+
+                    const thumbnailCell = row.cells.find(
+                      (cell) => cell.info?.header === 'thumbnailURL' || cell.id.endsWith('thumbnailURL')
+                    )
+
+                    const thumbnailURL = thumbnailCell?.value
+
+                    return (
+                      <React.Fragment key={row.id}>
+                        <TableExpandRow {...rowProps} key={row.id}>
+                          {row.cells.map((cell) => (
+                            <TableCell key={cell.id} hidden={cell.info.header === 'thumbnailURL'}>{cell.value}</TableCell>
+                          ))}
+                          <TableCell>
+                            <IconButton kind="secondary" size="sm" label="download" onClick={() => handleDownload(row.id)}>
+                              <Download />
+                            </IconButton>
+                            {isImage ? <IconButton kind="secondary" style={{ marginLeft: '0.25rem' }} size="sm" label="generate-thumbnail" onClick={() => { handleGenerateThumbnail(row.id) }}>
+                              <SettingsView />
+                            </IconButton> : ''}
+                            <IconButton kind="secondary" style={{ marginLeft: '0.25rem' }} size="sm" label="delete" onClick={() => handleDeleteModal(row.id)}>
+                              <TrashCan />
+                            </IconButton>
+                          </TableCell>
+                        </TableExpandRow>
+
+                        {row.isExpanded && (
+                          <TableExpandedRow colSpan={headers.length + 2}>
+                            <strong>Extended Description: </strong>
+                            {isImage ? <img
+                              src={thumbnailURL}
+                              alt="Thumbnail"
+                              style={{ maxHeight: '25rem', display: 'block', marginTop: '0.5rem', borderRadius: '4px' }}
+                            /> : ''}
+                          </TableExpandedRow>
+                        )}
+                      </React.Fragment>
+                    )
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </DataTable>
+
+        <Pagination
+          page={page}
+          pageSize={pageSize}
+          pageSizes={[10, 20, 30]}
+          totalItems={totalItems}
+          onChange={handlePaginationChange}
+        />
+      </div>
+      <Modal
+        danger
+        modalHeading="Are you sure you want to delete this file?"
+        modalLabel="File resources"
+        onRequestClose={() => setConfirmModalOpen(false)}
+        onRequestSubmit={handleDelete}
+        primaryButtonText="Delete"
+        secondaryButtonText="Cancel"
+        open={confirmModalOpen}
+      >
+        <p>
+          {rowToDelete?.id}: {rowToDelete?.originalName}
+          <img
+            src={rowToDelete?.thumbnailURL}
+            alt="Thumbnail"
+            style={{ maxHeight: '10rem', display: 'block', marginTop: '0.5rem', borderRadius: '4px' }}
+          />
+        </p>
+      </Modal>
+    </>
+  )
 }
 
 export default Files

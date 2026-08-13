@@ -13,7 +13,7 @@ import { Theme } from '@carbon/react'
 import ProfilePage from './features/auth/Profile'
 import Playground from './features/dashboard/Playground'
 import AuditLogs from './features/dashboard/AuditLogs'
-import Files from './features/dashboard/Files'
+import Files, { type MimeType } from './features/dashboard/Files'
 
 const RootRedirect = () => {
   const { isAuthenticated, loading } = useAuth()
@@ -28,6 +28,20 @@ const RootRedirect = () => {
 const queryClient = new QueryClient()
 
 function App() {
+  const mimeTypeImages : MimeType[] = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/jpg',
+    'image/webp',
+    'image/bmp',
+    'image/svg+xml',
+  ]
+
+  const docMimeTypes : MimeType[] = [
+    'text/markdown',
+  ]
+
   return (
     <Theme theme='g90' className='app-theme-wrapper'>
       <BrowserRouter>
@@ -43,7 +57,8 @@ function App() {
                 <Route path="/dashboard/users" element={<MainLayout children={<Users />} />} />
                 <Route path="/dashboard/auditlogs" element={<MainLayout children={<AuditLogs />} />} />
                 <Route path="/dashboard/playground" element={<MainLayout children={<Playground />} />} />
-                <Route path="/dashboard/upload" element={<MainLayout children={<Files />} />} />
+                <Route path="/dashboard/upload-images" element={<MainLayout children={<Files mimeTypes={mimeTypeImages} title='Image Files Management' />} />} />
+                <Route path="/dashboard/upload-documents" element={<MainLayout children={<Files mimeTypes={docMimeTypes} title='Document Files Management' />} />} />
                 <Route path="/profile" element={<MainLayout children={<ProfilePage />} />} />
               </Route>
             </Routes>
