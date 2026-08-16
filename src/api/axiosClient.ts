@@ -14,6 +14,14 @@ export const apiClientS3 = axios.create({
   withCredentials: false,
 })
 
+export const apiChatClient = axios.create({
+  baseURL: 'https://localhost:3000/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true,
+})
+
 let isRefreshing = false
 let failedQueue: Array<{
   resolve: (token: string) => void

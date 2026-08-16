@@ -1,0 +1,134 @@
+@use '@carbon/react' as *;
+
+.chat-page {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 12rem);
+  width: 100%;
+}
+
+.chat-container {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: $spacing-04;
+  overflow-y: auto;
+  padding: $spacing-06 $spacing-05;
+  scroll-behavior: smooth;
+}
+
+.chat-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: $spacing-03;
+  text-align: center;
+}
+
+.chat-empty-title {
+  @include type-style('heading-03');
+  color: var(--cds-text-primary);
+}
+
+.chat-empty-hint {
+  @include type-style('body-compact-01');
+  color: var(--cds-text-secondary);
+}
+
+.chat-item {
+  display: flex;
+  width: 100%;
+}
+
+.chat-item--prompt {
+  justify-content: flex-end;
+}
+
+.chat-item--response {
+  justify-content: flex-start;
+}
+
+.chat-bubble {
+  @include type-style('body-compact-01');
+  max-width: 70%;
+  padding: $spacing-04 $spacing-05;
+  border-radius: $spacing-03;
+  white-space: pre-wrap;
+  word-break: break-word;
+  color: var(--cds-text-primary);
+  background-color: var(--cds-layer-01);
+  border: 1px solid var(--cds-border-subtle-00);
+}
+
+.chat-item--prompt .chat-bubble {
+  background-color: var(--cds-button-primary);
+  color: var(--cds-text-on-color);
+  border-color: var(--cds-button-primary);
+}
+
+.chat-bubble--loading {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-02;
+  padding: $spacing-05;
+}
+
+.chat-dot {
+  width: $spacing-02;
+  height: $spacing-02;
+  border-radius: 50%;
+  background-color: var(--cds-text-secondary);
+  animation: chat-blink 1.4s infinite both;
+}
+
+.chat-dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.chat-dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+@keyframes chat-blink {
+  0%, 80%, 100% {
+    opacity: 0.2;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+.input-container {
+  display: flex;
+  justify-content: center;
+  padding: $spacing-05;
+  border-top: 1px solid var(--cds-border-subtle-00);
+  background-color: var(--cds-layer-00);
+}
+
+.input-box {
+  display: flex;
+  align-items: flex-end;
+  gap: $spacing-03;
+  width: 50%;
+}
+
+.prompt-input {
+  flex: 1;
+
+  textarea {
+    resize: none;
+  }
+}
+
+.send-button {
+  flex-shrink: 0;
+}
+
+@media (max-width: 42rem) {
+  .input-box {
+    width: 100%;
+  }
+}

@@ -63,5 +63,11 @@ export const fileService = {
     const response = await axiosClient.delete<ApiResponse<string>>(`/files/${fileID}`)
 
     return response.data
+  },
+
+  processEmbedding: async (fileID: string): Promise<ApiResponse<string>> => {
+    const response = await axiosClient.post<ApiResponse<string>>(`/files/${fileID}/enqueue-rag-ingestion`)
+
+    return response.data
   }
 }

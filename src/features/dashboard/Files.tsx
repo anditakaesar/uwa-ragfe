@@ -27,7 +27,7 @@ import React, { useState } from "react"
 import { useDeleteFile, useFiles, useUploadFile } from "../../hooks/files"
 import axios from "axios"
 import { fileService } from "../../services/fileService"
-import { Download, SettingsView, TrashCan } from "@carbon/icons-react"
+import { Download, Gears, SettingsView, TrashCan } from "@carbon/icons-react"
 
 const MIME_TO_EXTENSION = {
   'image/png': '.png',
@@ -176,7 +176,7 @@ const UploadSection = ({ acceptedMimeTypes }: { acceptedMimeTypes?: MimeType[] }
           <ProgressBar label="Uploading file..." value={uploadProgress} max={100} helperText={`${uploadProgress}% completed`} />
         </div>
       )}
-      <Callout className={!uploadErr ? 'hidden' : ''}
+      <Callout style={!uploadErr ? {display: 'none'} : {}}
         aria-label='error while uploading'
         kind='error'
         role='status'
@@ -250,6 +250,10 @@ const Files = ({ mimeTypes, title }: { mimeTypes?: MimeType[], title?: string })
     await fileService.generateThumbnail(fileID)
   }
 
+  const handleGenerateEmbedding = async (fileID: string) => {
+    await fileService.processEmbedding(fileID)
+  }
+
   const rows =
     data?.data.map((doc, index) => ({
       no: index + 1 + (page - 1) * pageSize,
@@ -288,7 +292,7 @@ const Files = ({ mimeTypes, title }: { mimeTypes?: MimeType[], title?: string })
           </p>
         </Section>
         <UploadSection acceptedMimeTypes={mimeTypes} />
-        <Callout className={!deleteErr ? 'hidden' : ''}
+        <Callout style={!deleteErr ? {display: 'none'} : {}}
           aria-label='error while deleting'
           kind='error'
           role='status'
@@ -342,6 +346,9 @@ const Files = ({ mimeTypes, title }: { mimeTypes?: MimeType[], title?: string })
                             {isImage ? <IconButton kind="secondary" style={{ marginLeft: '0.25rem' }} size="sm" label="generate-thumbnail" onClick={() => { handleGenerateThumbnail(row.id) }}>
                               <SettingsView />
                             </IconButton> : ''}
+                            {isImage ? '' : <IconButton kind="secondary" style={{ marginLeft: '0.25rem' }} size="sm" label="generate-embedding" onClick={() => { handleGenerateEmbedding(row.id) }}>
+                              <Gears />
+                            </IconButton>}
                             <IconButton kind="secondary" style={{ marginLeft: '0.25rem' }} size="sm" label="delete" onClick={() => handleDeleteModal(row.id)}>
                               <TrashCan />
                             </IconButton>
