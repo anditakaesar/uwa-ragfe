@@ -86,15 +86,13 @@ const Dashboard = () => {
         <Column sm={1} md={4}>
           <Card>
             <Card.Header>
-              <Card.Title>Card title</Card.Title>
+              <Card.Title>Unanswered FAQ</Card.Title>
             </Card.Header>
             <Card.Body>
-              <p>Card body content.</p>
+              <p>Number: 3</p>
             </Card.Body>
             <Card.Footer>
-              <Button kind="tertiary" size="md">
-                Action
-              </Button>
+              <Button kind='tertiary' style={buttonFullsize} href="/dashboard/faqs">Open FAQ List</Button>
             </Card.Footer>
           </Card>
         </Column>
@@ -106,6 +104,7 @@ const Dashboard = () => {
           <div className="menu-title">Resources</div>
           <ul className="menu-item">
             <li><Button kind='ghost' style={buttonFullsize} href="/dashboard/users">Users</Button></li>
+            <li><Button kind='ghost' style={buttonFullsize} href="/dashboard/faqs">FAQ List</Button></li>
           </ul>
         </Column>
         <Column lg={4}>
