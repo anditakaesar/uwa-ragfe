@@ -16,3 +16,8 @@ export interface GetFAQRequest {
 export interface GetFAQResponseMeta {
   pagination: PaginationMeta
 }
+
+export interface UpdateFAQParam {
+  id: string
+  status: string
+}
