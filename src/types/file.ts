@@ -9,6 +9,7 @@ export interface File {
   sizeHumanize: string
   thumbnailURL: string
   status: string
+  embeddingStatus: string
   createdAt: string
 }
 

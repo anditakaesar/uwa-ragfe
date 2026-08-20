@@ -65,6 +65,7 @@ const headers = [
   { key: 'sizeHumanize', header: 'Size' },
   { key: 'status', header: 'Status' },
   { key: 'createdAt', header: 'Created At' },
+  { key: 'embeddingStatus', header: 'Embedding Status' },
   { key: 'thumbnailURL', header: 'Thumbnail URL' }
 ]
 
@@ -262,6 +263,7 @@ const Files = ({ mimeTypes, title }: { mimeTypes?: MimeType[], title?: string })
       mimeType: doc.mimeType,
       sizeHumanize: doc.sizeHumanize,
       thumbnailURL: doc.thumbnailURL,
+      embeddingStatus: doc.embeddingStatus,
       status: doc.status,
       createdAt: new Date(doc.createdAt).toLocaleString()
     })) || []
