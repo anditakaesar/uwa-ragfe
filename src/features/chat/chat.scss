@@ -102,10 +102,39 @@
 
 .input-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: $spacing-03;
   padding: $spacing-05;
   border-top: 1px solid var(--cds-border-subtle-00);
   background-color: var(--cds-layer-00);
+}
+
+.chat-connection {
+  display: flex;
+  align-items: center;
+  gap: $spacing-02;
+  @include type-style('label-01');
+  color: var(--cds-text-secondary);
+}
+
+.chat-connection-dot {
+  width: $spacing-02;
+  height: $spacing-02;
+  border-radius: 50%;
+  background-color: var(--cds-text-disabled);
+}
+
+.chat-connection-dot--open {
+  background-color: var(--cds-support-success);
+}
+
+.chat-connection-dot--closed {
+  background-color: var(--cds-support-error);
+}
+
+.chat-connection-action {
+  min-height: auto;
 }
 
 .input-box {

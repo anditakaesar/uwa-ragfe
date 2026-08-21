@@ -17,7 +17,7 @@ export const ChatWs = () => {
   const [prompt, setPrompt] = useState('')
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const bottomRef = useRef<HTMLDivElement>(null)
-  const { send, status } = useWebSocket({
+  const { send, status, disconnect, reconnect } = useWebSocket({
     onToken: (msgId, text) => {
       setMessages(
         prev => prev.map(
@@ -39,6 +39,14 @@ export const ChatWs = () => {
           m => m.id === msgId ? { ...m, status: "failed" } : m
         )
       )
+    },
+    // when the connection dies, anything still streaming will never complete
+    onDisconnect: () => {
+      setMessages(
+        prev => prev.map(
+          m => m.status === "loading" ? { ...m, status: "failed" } : m
+        )
+      )
     }
   })
 
@@ -58,7 +66,7 @@ export const ChatWs = () => {
       { id: msgId, status: "loading", type: "response", text: "" },
     ])
     setPrompt('')
-    send({ type: "ask", data: { prompt, msgId } })
+    send({ type: "ask", data: { msgId, text: prompt } })
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>): void => {
@@ -92,9 +100,13 @@ export const ChatWs = () => {
                 <div key={i} className={`chat-item chat-item--${message.type}`}>
                   <div className="chat-bubble">
                     {message.type === 'response' ? (
-                      <div
-                        dangerouslySetInnerHTML={{ __html: marked.parse(message.text) as string }}
-                      />
+                      message.status === 'failed' && !message.text ? (
+                        "Something went wrong. Please try again."
+                      ) : (
+                        <div
+                          dangerouslySetInnerHTML={{ __html: marked.parse(message.text) as string }}
+                        />
+                      )
                     ) : (
                       message.text
                     )}
@@ -108,6 +120,31 @@ export const ChatWs = () => {
       </div>
 
       <div className="input-container">
+        <div className="chat-connection">
+          <span className={`chat-connection-dot chat-connection-dot--${status}`} />
+          <span className="chat-connection-label">
+            {status === "open" ? "Connected" : status === "closed" ? "Disconnected" : "Connecting"}
+          </span>
+          {status === "open" ? (
+            <Button
+              className="chat-connection-action"
+              kind="ghost"
+              size="sm"
+              onClick={disconnect}
+            >
+              Disconnect
+            </Button>
+          ) : (
+            <Button
+              className="chat-connection-action"
+              kind="ghost"
+              size="sm"
+              onClick={reconnect}
+            >
+              Reconnect
+            </Button>
+          )}
+        </div>
         <div className="input-box">
           <TextArea
             className="prompt-input"
@@ -117,7 +154,7 @@ export const ChatWs = () => {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={handleKeyDown}
-            disabled={isLoading}
+            disabled={status !== "open" || isLoading}
             rows={2}
           />
           <Button
