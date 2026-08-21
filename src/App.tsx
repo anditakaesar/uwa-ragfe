@@ -16,6 +16,7 @@ import AuditLogs from './features/dashboard/AuditLogs'
 import Files, { type MimeType } from './features/dashboard/Files'
 import { Chat } from './features/chat/Chat'
 import { Faqlist } from './features/dashboard/Faqlist'
+import { ChatWs } from './features/chat/ChatWs'
 
 const RootRedirect = () => {
   const { isAuthenticated, loading } = useAuth()
@@ -64,6 +65,7 @@ function App() {
                 <Route path="/dashboard/upload-documents" element={<MainLayout children={<Files mimeTypes={docMimeTypes} title='Document Files Management' />} />} />
                 <Route path="/profile" element={<MainLayout children={<ProfilePage />} />} />
                 <Route path="/chat" element={<MainLayout children={<Chat />} />} />
+                <Route path="/chatws" element={<MainLayout children={<ChatWs />} />} />
               </Route>
             </Routes>
             <Footer />

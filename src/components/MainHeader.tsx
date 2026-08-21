@@ -58,6 +58,7 @@ const MainHeader = () => {
               <HeaderNavigation aria-label="Header">
                 <HeaderMenuItem href="/dashboard">Dashboard</HeaderMenuItem>
                 <HeaderMenuItem href="/chat">Chat</HeaderMenuItem>
+                <HeaderMenuItem href="/chatws">Chat WS</HeaderMenuItem>
               </HeaderNavigation>
               <SideNav
                 aria-label="Side navigation"
