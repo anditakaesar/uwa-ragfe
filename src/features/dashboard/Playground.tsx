@@ -1,7 +1,7 @@
 import { useState } from "react"
 import { SelectPickField } from "../../components/InputWithButton"
 import type { DropdownItem } from "../../types/dropdownItem"
-import { ComboBox, Stack, TextInput } from "@carbon/react"
+import { ComboBox, Stack } from "@carbon/react"
 import { useDebounce } from "../../hooks/useDebounce"
 import { useRolesLookup } from "../../hooks/roles"
 import { DateTimePicker } from "../../components/DateTimePicker"
