@@ -6,6 +6,7 @@ export const faqService = {
   getFAQs: async (params?: GetFAQRequest): Promise<ApiResponseWithMeta<FAQ[], GetFAQResponseMeta>> => {
       const response = await axiosClient.get<ApiResponseWithMeta<FAQ[], GetFAQResponseMeta>>('/faqs', {
         params: {
+          status: params?.status,
           page: params?.page,
           size: params?.size,
         }

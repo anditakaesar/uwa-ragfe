@@ -4,6 +4,7 @@ import type { DropdownItem } from "../../types/dropdownItem"
 import { ComboBox, Stack, TextInput } from "@carbon/react"
 import { useDebounce } from "../../hooks/useDebounce"
 import { useRolesLookup } from "../../hooks/roles"
+import { DateTimePicker } from "../../components/DateTimePicker"
 
 const Playground = () => {
   const [roleID, setRoleID] = useState('1')
@@ -50,7 +51,7 @@ const Playground = () => {
       </div>
 
       <div style={{ marginBottom: '1rem' }} />
-      <TextInput id='some-test-input' labelText='some test' />
+      <DateTimePicker />
     </Stack>
   )
 }

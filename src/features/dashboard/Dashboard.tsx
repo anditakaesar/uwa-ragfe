@@ -3,6 +3,7 @@ import './dashboard.scss'
 import { Card } from "@carbon/react/lib/components/Card"
 import { useUsers } from "../../hooks/users"
 import { useFiles } from "../../hooks/files"
+import { useFAQs } from "../../hooks/faqs"
 
 const Dashboard = () => {
   const buttonFullsize = { width: '100%', height: '100%', TextVerticalAlignment: 'center' }
@@ -29,6 +30,14 @@ const Dashboard = () => {
       'image/svg+xml',
     ]
   })
+
+  const { data: faqData } = useFAQs({
+    status: 'unanswered',
+    page: 1,
+    size: 1,
+  })
+
+  const unansweredTotal = faqData?.meta.pagination.total || 0
 
   return (
     <>
@@ -89,7 +98,9 @@ const Dashboard = () => {
               <Card.Title>Unanswered FAQ</Card.Title>
             </Card.Header>
             <Card.Body>
-              <p>Number: 3</p>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'end', alignContent: 'end' }}>
+                <p style={{ fontSize: '4rem' }}>{unansweredTotal}</p>
+              </div>
             </Card.Body>
             <Card.Footer>
               <Button kind='tertiary' style={buttonFullsize} href="/dashboard/faqs">Open FAQ List</Button>

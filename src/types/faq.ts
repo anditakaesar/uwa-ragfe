@@ -9,6 +9,7 @@ export interface FAQ {
 }
 
 export interface GetFAQRequest {
+  status?: string
   page?: number
   size?: number
 }
