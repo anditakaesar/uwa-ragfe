@@ -7,6 +7,8 @@ export const auditLogService = {
         const response = await axiosClient.get<ApiResponseWithMeta<AuditLog[], GetAuditLogResponseMeta>>('/auditlogs', {
             params: {
                 resourcename: params?.resourceName || undefined,
+                startDate: params?.startDate,
+                endDate: params?.endDate,
                 page: params?.page,
                 size: params?.size,
             }

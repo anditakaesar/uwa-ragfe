@@ -13,6 +13,8 @@ export interface AuditLog {
 
 export interface GetAuditLogRequest {
     resourceName?: string
+    startDate?: Date
+    endDate?: Date
     page?: number
     size?: number
 }
